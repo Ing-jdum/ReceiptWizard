@@ -17,6 +17,17 @@ def prepare_image_local(image_path):
         return
 
 
+def prepare_image_web(url):
+    try:
+        # Loads the image into memory
+        image = vision.Image()
+        image.source.image_uri = url
+        return image
+    except Exception as e:
+        print(e)
+        return
+
+
 def draw_boundary(image_file, vertices, caption=''):
     pil_image = Image.open(image_file)
     draw = ImageDraw.Draw(pil_image)
