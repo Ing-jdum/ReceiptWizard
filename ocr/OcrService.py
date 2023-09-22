@@ -12,5 +12,5 @@ class OcrService(IOcrService):
         client = vision.ImageAnnotatorClient()
         va = VisionAI(client, image)
         texts = va.text_detection()
-
-        return texts[0].description
+        result = texts[0].description
+        return result
