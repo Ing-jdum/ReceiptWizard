@@ -28,24 +28,25 @@ def prepare_image_web(url):
         return
 
 
-def draw_boundary(image_file, vertices, caption=''):
+def draw_boundary(image_file, polygons):
     pil_image = Image.open(image_file)
     draw = ImageDraw.Draw(pil_image)
-    xys = [(vertex.x, vertex.y) for vertex in vertices]
-    xys.append(xys[0])
-    draw.line(xys, fill=(255, 255, 0), width=10)
-    draw.text((xys[0][0], xys[0][1]-45), caption)
+
+    for vertices in polygons:
+        xys = [(vertex.x, vertex.y) for vertex in vertices]
+        xys.append(xys[0])
+        draw.line(xys, fill=(255, 255, 0), width=10)
+
     pil_image.show()
 
 
 def draw_boundary_normalized(image_file, vertices, caption=''):
-    font = ImageFont.truetype('C:\Windows\Fonts\OpenSans-Bold', size=35)
     pil_image = Image.open(image_file)
     draw = ImageDraw.Draw(pil_image)
     xys = [(vertex.x * pil_image.size[0], vertex.y * pil_image.size[1]) for vertex in vertices]
     xys.append(xys[0])
     draw.line(xys, fill=(255, 255, 0), width=10)
-    draw.text((xys[0][0], xys[0][1]-45), caption, font=font)
+    draw.text((xys[0][0], xys[0][1]-45), caption)
     pil_image.show()
 
 
@@ -62,7 +63,7 @@ class VisionAI:
     Face_Detection = namedtuple('Face_Detection', ('detection_confidence', 'joy_likelihood', 'sorrow_likelihood', 'anger_likelihood', 'surprise_likelihood', 'under_exposed_likelihood',
         'blurred_likelihood', 'headwear_likelihood', 'bounding_poly'))
 
-    Text_Detection = namedtuple('Text_Detection', ('description', 'bounding_poly'))
+    Text_Detection = namedtuple('DOCUMENT_TEXT_DETECTION', ('description', 'bounding_poly'))
 
     def __init__(self, client, image):
         self.client = client
@@ -147,7 +148,9 @@ class VisionAI:
         return
 
     def text_detection(self):
-        response = self.client.text_detection(image=self.image)
+        # Define the image context with the language hint
+        image_context = vision.ImageContext(language_hints=['es'])
+        response = self.client.text_detection(image=self.image, image_context=image_context)
         texts = response.text_annotations
         if texts:
             results = []
